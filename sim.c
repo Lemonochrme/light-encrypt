@@ -6,6 +6,7 @@
 
 #define BLOCK_SIZE 16
 #define PACKET_SIZE 256
+// #define DEBUG
 
 // Clé partagée entre A et B
 const uint8_t shared_key[BLOCK_SIZE] = { 0x2b, 0x7e, 0x15, 0x16, 0x28, 0xae, 0xd2, 0xa6, 0xab, 0xf7, 0x4d, 0x4d, 0x9f, 0x24, 0x3b, 0x7a };
@@ -46,13 +47,17 @@ void node_sender(const char *message, uint8_t *encrypted_message, size_t *encryp
 
     *encrypted_len = PACKET_SIZE;
 
+#ifdef DEBUG
     printf("[Node A] Encrypted message: ");
     print_hex("", encrypted_message, *encrypted_len);
+#endif
 }
 
 void node_receiver(const uint8_t *encrypted_message, size_t encrypted_len) {
+#ifdef DEBUG
     printf("[Node B] Received encrypted message: ");
     print_hex("", encrypted_message, encrypted_len);
+#endif
 
     struct AES_ctx ctx;
     uint8_t decrypted_message[PACKET_SIZE];
@@ -61,8 +66,10 @@ void node_receiver(const uint8_t *encrypted_message, size_t encrypted_len) {
     memcpy(decrypted_message, encrypted_message, PACKET_SIZE);
     AES_CBC_decrypt_buffer(&ctx, decrypted_message, PACKET_SIZE);
 
+#ifdef DEBUG
     printf("[Node B] Decrypted message: ");
     print_hex("", decrypted_message, PACKET_SIZE);
+#endif
 
     // Suppression des zéros ajoutés
     size_t message_len = strnlen((char *)decrypted_message, PACKET_SIZE);
